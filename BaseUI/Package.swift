@@ -9,9 +9,13 @@ let package = Package(
     products: [
         .library(name: "BaseUI", targets: ["BaseUI"])
     ],
+    dependencies: [
+        .package(url: "https://github.com/PhanithNY/EasyAnchor.git", branch: "master")
+    ],
     targets: [
         .target(
             name: "BaseUI",
+            dependencies: ["EasyAnchor"],
             path: "Sources/BaseUI"
         ),
         .testTarget(

@@ -7,6 +7,7 @@
 /// - `BaseDropdownField` / `BaseDropdownFieldView`  Dropdown with the text-field look for UIKit / SwiftUI
 /// - `BaseReorderList` / `BaseReorderListView`      Drag items across sections and reorder sections (UITableView)
 /// - `BaseReorderCollection` / `BaseReorderCollectionView`  Same, on UICollectionView with list / grid layouts
+/// - `present(_:zoomingFrom:)` / `.baseZoomPresentation`  Zoom a screen out of a source view; drag down / right to dismiss
 /// - `DeviceScreen`  Detects Dynamic Island / notch / classic screens
 public enum BaseUI {
     public static let version = "0.1.0"

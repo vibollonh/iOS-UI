@@ -8,6 +8,7 @@ enum Feature: String, CaseIterable, Identifiable, Hashable {
   case baseTextField
   case baseDropdownField
   case baseReorderList
+  case zoomTransition
   case deviceScreen
   
   var id: String { rawValue }
@@ -19,6 +20,7 @@ enum Feature: String, CaseIterable, Identifiable, Hashable {
     case .baseTextField: return "Base Text Field"
     case .baseDropdownField: return "Dropdown Field"
     case .baseReorderList: return "Reorder List"
+    case .zoomTransition: return "Zoom Presentation"
     case .deviceScreen: return "Device Screen"
     }
   }
@@ -30,6 +32,7 @@ enum Feature: String, CaseIterable, Identifiable, Hashable {
     case .baseTextField: return "Title, icon, password, helper / error — UIKit and SwiftUI"
     case .baseDropdownField: return "Text-field look with a native menu — UIKit and SwiftUI"
     case .baseReorderList: return "Drag items across sections, reorder sections — table, collection list / grid"
+    case .zoomTransition: return "Zoom a screen out of a card; drag down or right to dismiss — UIKit and SwiftUI"
     case .deviceScreen: return "Dynamic Island / notch detection and calibration"
     }
   }
@@ -41,6 +44,7 @@ enum Feature: String, CaseIterable, Identifiable, Hashable {
     case .baseTextField: return "character.cursor.ibeam"
     case .baseDropdownField: return "chevron.up.chevron.down"
     case .baseReorderList: return "line.3.horizontal"
+    case .zoomTransition: return "arrow.up.left.and.arrow.down.right"
     case .deviceScreen: return "iphone"
     }
   }
@@ -49,6 +53,7 @@ enum Feature: String, CaseIterable, Identifiable, Hashable {
     switch self {
     case .islandToast:  return .feedback
     case .baseButton, .baseTextField, .baseDropdownField, .baseReorderList: return .controls
+    case .zoomTransition: return .presentation
     case .deviceScreen: return .utilities
     }
   }
@@ -61,6 +66,7 @@ enum Feature: String, CaseIterable, Identifiable, Hashable {
     case .baseTextField: BaseTextFieldDemoView()
     case .baseDropdownField: BaseDropdownFieldDemoView()
     case .baseReorderList: BaseReorderListDemoView()
+    case .zoomTransition: BaseZoomTransitionDemoView()
     case .deviceScreen: DeviceScreenDemoView()
     }
   }
@@ -69,6 +75,7 @@ enum Feature: String, CaseIterable, Identifiable, Hashable {
 enum FeatureSection: String, CaseIterable {
   case controls = "Controls"
   case feedback = "Feedback"
+  case presentation = "Presentation"
   case utilities = "Utilities"
 }
 

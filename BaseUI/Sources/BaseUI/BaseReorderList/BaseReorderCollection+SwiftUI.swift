@@ -8,7 +8,8 @@ import SwiftUI
 ///         BaseReorderRow(title: app.name, systemImage: app.icon)
 ///     }
 ///
-/// Fills the space it is given and scrolls itself; don't nest it in a `ScrollView`.
+/// Fills the space it is given and scrolls itself. Inside a `ScrollView`, pass
+/// `isScrollEnabled: false` so it sizes to its content and the outer view does the scrolling.
 public struct BaseReorderCollectionView<Item: Hashable>: UIViewRepresentable {
     @Binding private var sections: [BaseReorderSection<Item>]
     private let mode: BaseReorderMode
@@ -18,6 +19,7 @@ public struct BaseReorderCollectionView<Item: Hashable>: UIViewRepresentable {
     private let allowsCrossSectionMoves: Bool
     private let emptySectionText: String?
     private let canMoveItem: ((Item) -> Bool)?
+    private let isScrollEnabled: Bool
     private let row: (Item) -> BaseReorderRow
 
     public init(sections: Binding<[BaseReorderSection<Item>]>,
@@ -28,6 +30,7 @@ public struct BaseReorderCollectionView<Item: Hashable>: UIViewRepresentable {
                 allowsCrossSectionMoves: Bool = true,
                 emptySectionText: String? = "Drag items here",
                 canMoveItem: ((Item) -> Bool)? = nil,
+                isScrollEnabled: Bool = true,
                 row: @escaping (Item) -> BaseReorderRow) {
         self._sections = sections
         self.mode = mode
@@ -37,6 +40,7 @@ public struct BaseReorderCollectionView<Item: Hashable>: UIViewRepresentable {
         self.allowsCrossSectionMoves = allowsCrossSectionMoves
         self.emptySectionText = emptySectionText
         self.canMoveItem = canMoveItem
+        self.isScrollEnabled = isScrollEnabled
         self.row = row
     }
 
@@ -48,6 +52,7 @@ public struct BaseReorderCollectionView<Item: Hashable>: UIViewRepresentable {
         collection.allowsCrossSectionMoves = allowsCrossSectionMoves
         collection.emptySectionText = emptySectionText
         collection.canMoveItem = canMoveItem
+        collection.isScrollEnabled = isScrollEnabled
         collection.onChange = { sections = $0 }
         return collection
     }
@@ -64,6 +69,7 @@ public struct BaseReorderCollectionView<Item: Hashable>: UIViewRepresentable {
         if collection.itemSize != itemSize { collection.itemSize = itemSize }
         // Closures can't be compared; re-applying only re-lays out visible cells (no reload).
         collection.sizeForItem = sizeForItem
+        collection.isScrollEnabled = isScrollEnabled
         if collection.emptySectionText != emptySectionText { collection.emptySectionText = emptySectionText }
     }
 }

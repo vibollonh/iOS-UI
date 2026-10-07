@@ -16,6 +16,10 @@ public struct BaseReorderSection<Item: Hashable>: Identifiable, Hashable {
     public var isPinned: Bool
     /// `false` locks the items: they can't be dragged out and nothing can be dropped in.
     public var allowsItemMoves: Bool
+    /// An item dropped here from another section swaps places with the item it lands on, which moves to
+    /// the dragged item's old spot, so the section keeps its item count (e.g. a fixed favorites row).
+    /// Drops into an empty section and moves within the section are regular moves.
+    public var swapsOnDrop: Bool
     /// Width / height of this section's cells in a `BaseReorderCollection`. `nil` uses the
     /// collection's `itemSize`, then the layout's defaults.
     public var itemSize: BaseReorderItemSize?
@@ -26,7 +30,7 @@ public struct BaseReorderSection<Item: Hashable>: Identifiable, Hashable {
 
     public init(id: String, title: String, items: [Item], layout: BaseReorderCollectionLayout? = nil,
                 itemSize: BaseReorderItemSize? = nil, height: CGFloat? = nil,
-                isPinned: Bool = false, allowsItemMoves: Bool = true) {
+                isPinned: Bool = false, allowsItemMoves: Bool = true, swapsOnDrop: Bool = false) {
         self.id = id
         self.title = title
         self.items = items
@@ -35,14 +39,20 @@ public struct BaseReorderSection<Item: Hashable>: Identifiable, Hashable {
         self.height = height
         self.isPinned = isPinned
         self.allowsItemMoves = allowsItemMoves
+        self.swapsOnDrop = swapsOnDrop
     }
 
     /// Uses the title as the id.
-    public init(_ title: String, items: [Item], layout: BaseReorderCollectionLayout? = nil,
-                itemSize: BaseReorderItemSize? = nil, height: CGFloat? = nil,
-                isPinned: Bool = false, allowsItemMoves: Bool = true) {
+    public init(_ title: String,
+                items: [Item],
+                layout: BaseReorderCollectionLayout? = nil,
+                itemSize: BaseReorderItemSize? = nil,
+                height: CGFloat? = nil,
+                isPinned: Bool = false,
+                allowsItemMoves: Bool = true,
+                swapsOnDrop: Bool = false) {
         self.init(id: title, title: title, items: items, layout: layout, itemSize: itemSize, height: height,
-                  isPinned: isPinned, allowsItemMoves: allowsItemMoves)
+                  isPinned: isPinned, allowsItemMoves: allowsItemMoves, swapsOnDrop: swapsOnDrop)
     }
 }
 
@@ -54,8 +64,13 @@ public enum BaseReorderCollectionLayout: Hashable {
     case grid(columns: Int)
     /// Cards in one horizontally scrolling row.
     case carousel
-    /// Large full-width cards.
+    /// Large full-width cards, stacked vertically.
     case banner
+    /// Large full-width cards side by side; swipe to page from one to the next.
+    case horizontalBanner
+
+    /// Cells sit in one row that scrolls sideways.
+    var scrollsSideways: Bool { self == .carousel || self == .horizontalBanner }
 }
 
 /// Cell size for a `BaseReorderCollection` section.
@@ -171,6 +186,35 @@ public enum BaseReorder {
         let item = sections[source.section].items.remove(at: source.row)
         let row = min(max(0, destination.row), sections[destination.section].items.count)
         sections[destination.section].items.insert(item, at: row)
+    }
+
+    /// Whether moving `source` to `destination` swaps instead of moving: it crosses into a
+    /// `swapsOnDrop` section that has an item to swap with.
+    public static func swaps<Item>(in sections: [BaseReorderSection<Item>],
+                                   from source: IndexPath, to destination: IndexPath) -> Bool {
+        source.section != destination.section
+            && sections.indices.contains(destination.section)
+            && sections[destination.section].swapsOnDrop
+            && !sections[destination.section].items.isEmpty
+    }
+
+    /// The item a swap at `destination` lands on: the insertion slot, or the last item when the slot
+    /// is past the end.
+    public static func swapTarget<Item>(in sections: [BaseReorderSection<Item>], at destination: IndexPath) -> IndexPath {
+        let count = sections[destination.section].items.count
+        return IndexPath(item: min(max(0, destination.item), count - 1), section: destination.section)
+    }
+
+    /// Swaps two items across sections: the item at `source` takes `target`'s place and vice versa.
+    public static func swapItem<Item>(in sections: inout [BaseReorderSection<Item>],
+                                      from source: IndexPath, with target: IndexPath) {
+        guard source.section != target.section,
+              sections.indices.contains(source.section), sections[source.section].items.indices.contains(source.item),
+              sections.indices.contains(target.section), sections[target.section].items.indices.contains(target.item)
+        else { return }
+        let dragged = sections[source.section].items[source.item]
+        sections[source.section].items[source.item] = sections[target.section].items[target.item]
+        sections[target.section].items[target.item] = dragged
     }
 
     /// Keeps a proposed drop position inside the section's valid range. Within the same section the

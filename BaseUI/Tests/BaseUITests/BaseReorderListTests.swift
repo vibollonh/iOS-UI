@@ -40,6 +40,43 @@ final class BaseReorderListTests: XCTestCase {
         XCTAssertEqual(sections, sample())
     }
 
+    func testBannerAxes() {
+        XCTAssertFalse(BaseReorderCollectionLayout.banner.scrollsSideways)
+        XCTAssertTrue(BaseReorderCollectionLayout.horizontalBanner.scrollsSideways)
+        XCTAssertTrue(BaseReorderCollectionLayout.carousel.scrollsSideways)
+    }
+
+    func testSwapIntoSwapSection() {
+        var sections = sample()
+        sections[1] = BaseReorderSection("Doing", items: ["D", "E"], swapsOnDrop: true)
+        let source = IndexPath(item: 1, section: 0)
+        XCTAssertTrue(BaseReorder.swaps(in: sections, from: source, to: IndexPath(item: 1, section: 1)))
+        BaseReorder.swapItem(in: &sections, from: source, with: IndexPath(item: 1, section: 1))
+        XCTAssertEqual(sections[0].items, ["A", "E", "C"])
+        XCTAssertEqual(sections[1].items, ["D", "B"])
+    }
+
+    func testSwapRules() {
+        var sections = sample()
+        sections[1].swapsOnDrop = true
+        sections[2].swapsOnDrop = true
+        // Within the section, and into an empty swap section, are regular moves.
+        XCTAssertFalse(BaseReorder.swaps(in: sections, from: IndexPath(item: 0, section: 1), to: IndexPath(item: 0, section: 1)))
+        XCTAssertFalse(BaseReorder.swaps(in: sections, from: IndexPath(item: 0, section: 0), to: IndexPath(item: 0, section: 2)))
+        // A slot past the end lands on the last item.
+        XCTAssertEqual(BaseReorder.swapTarget(in: sections, at: IndexPath(item: 5, section: 1)), IndexPath(item: 0, section: 1))
+    }
+
+    func testCollectionCommitSwap() {
+        let collection = BaseReorderCollection(sections: [
+            BaseReorderSection("To do", items: ["A", "B"]),
+            BaseReorderSection("Favorites", items: ["F", "G"], layout: .carousel, swapsOnDrop: true),
+        ]) { BaseReorderRow(title: $0) }
+        collection.commitSwap(from: IndexPath(item: 0, section: 0), with: IndexPath(item: 1, section: 1))
+        XCTAssertEqual(collection.sections[0].items, ["G", "B"])
+        XCTAssertEqual(collection.sections[1].items, ["F", "A"])
+    }
+
     func testMoveSection() {
         var sections = sample()
         BaseReorder.moveSection(in: &sections, from: 2, to: 0)

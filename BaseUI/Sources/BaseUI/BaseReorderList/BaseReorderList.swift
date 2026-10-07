@@ -126,6 +126,15 @@ open class BaseReorderList<Item: Hashable>: UIView, UITableViewDataSource, UITab
         return emptySectionText
     }
 
+    /// The item a drop at `destination` swaps with (see `BaseReorderSection.swapsOnDrop`), or `nil`
+    /// for a regular move, including when that item is pinned by `canMoveItem`.
+    private func swapTarget(from source: IndexPath, to destination: IndexPath) -> IndexPath? {
+        guard BaseReorder.swaps(in: sections, from: source, to: destination) else { return nil }
+        let target = BaseReorder.swapTarget(in: sections, at: destination)
+        let item = sections[target.section].items[target.row]
+        return canMoveItem?(item) ?? true ? target : nil
+    }
+
     public func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
         switch mode {
         case .sections:
@@ -140,6 +149,9 @@ open class BaseReorderList<Item: Hashable>: UIView, UITableViewDataSource, UITab
     public func tableView(_ tableView: UITableView, moveRowAt source: IndexPath, to destination: IndexPath) {
         isCommittingMove = true
         switch mode {
+        case .items where swapTarget(from: source, to: destination) != nil:
+            // The table has already inserted the row; the async section reload below shows the swap.
+            BaseReorder.swapItem(in: &sections, from: source, with: swapTarget(from: source, to: destination)!)
         case .items:   BaseReorder.moveItem(in: &sections, from: source, to: destination)
         case .sections:
             let target = BaseReorder.clampedSectionDestination(from: source.row, to: destination.row,

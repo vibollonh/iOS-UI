@@ -1,6 +1,7 @@
+import BaseUI
+import EasyAnchor
 import SwiftUI
 import UIKit
-import BaseUI
 
 struct DemoTask: Hashable {
     let id = UUID()
@@ -50,7 +51,7 @@ private func mixedSections() -> [BaseReorderSection<DemoTask>] {
         BaseReorderSection("", items: [ // TO DO
             DemoTask(name: "Design login screen", note: "Figma · 2 pts", icon: "paintbrush"),
             DemoTask(name: "Add Khmer localization", note: "Strings · 3 pts", icon: "character.bubble"),
-        ], layout: .list, allowsItemMoves: false),
+        ], layout: .list, swapsOnDrop: true),
         
         BaseReorderSection("Done", items: [
             DemoTask(name: "Base button", note: "2 pts", icon: "checkmark.circle"),
@@ -58,7 +59,7 @@ private func mixedSections() -> [BaseReorderSection<DemoTask>] {
             DemoTask(name: "Dropdown", note: "2 pts", icon: "checkmark.circle"),
         ], layout: .grid(columns: 3),
                            itemSize: .init(width: .absolute(100), height: .absolute(110)),
-                           allowsItemMoves: false),
+                           swapsOnDrop: true),
         
         BaseReorderSection("Blocked", items: [], layout: .list, itemSize: .init(height: .absolute(60))),
     ]

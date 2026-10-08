@@ -139,6 +139,7 @@ open class BaseReorderCollection<Item: Hashable>: UIView, UICollectionViewDataSo
     var fingerY: CGFloat
     var displayLink: CADisplayLink?
   }
+  
   private var listCellRegistration: UICollectionView.CellRegistration<BaseReorderListCell, IndexPath>!
   private var tileCellRegistration: UICollectionView.CellRegistration<BaseReorderTileCell, IndexPath>!
   private var cardCellRegistration: UICollectionView.CellRegistration<BaseReorderCardCell, IndexPath>!
@@ -173,7 +174,7 @@ open class BaseReorderCollection<Item: Hashable>: UIView, UICollectionViewDataSo
     collectionView.delegate = self
     collectionView.dragDelegate = self
     collectionView.dropDelegate = self
-    collectionView.dragInteractionEnabled = true   // off by default on iPhone
+    collectionView.dragInteractionEnabled = true
     collectionView.allowsSelection = false
     collectionView.layout {
       addSubview($0)

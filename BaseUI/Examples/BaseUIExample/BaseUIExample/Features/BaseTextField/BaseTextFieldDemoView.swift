@@ -1,3 +1,4 @@
+import EasyAnchor
 import SwiftUI
 import UIKit
 import BaseUI
@@ -64,12 +65,18 @@ struct BaseTextFieldDemoView: View {
 // MARK: - UIKit
 
 final class UIKitTextFieldsDemoViewController: UIViewController {
+  
+  private var normalTextView = BaseTextField().config {
+    $0.leadingIcon = UIImage(systemName: "person")
+    $0.placeholder = "Normal Text"
+  }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        let name = BaseTextField(title: "Full name", placeholder: "Sokha Chan",
-                                 helperText: "As shown on your ID", leadingIcon: UIImage(systemName: "person"))
+        let name = BaseTextField(title: "Full name",
+                                 placeholder: "Sokha Chan",
+                                 helperText: "As shown on your ID",
+                                 leadingIcon: UIImage(systemName: "person"))
         name.textField.textContentType = .name
         name.textField.returnKeyType = .next
 
@@ -83,7 +90,7 @@ final class UIKitTextFieldsDemoViewController: UIViewController {
 
         name.onReturn = { [weak pin] in pin?.becomeFirstResponder() }
 
-        let stack = UIStackView(arrangedSubviews: [name, pin])
+        let stack = UIStackView(arrangedSubviews: [normalTextView ,name, pin])
         stack.axis = .vertical
         stack.spacing = 16
         stack.translatesAutoresizingMaskIntoConstraints = false

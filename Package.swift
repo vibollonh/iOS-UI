@@ -15,13 +15,11 @@ let package = Package(
     targets: [
         .target(
             name: "BaseUI",
-            dependencies: ["EasyAnchor"],
-            path: "BaseUI/Sources/BaseUI"
+            dependencies: ["EasyAnchor"]
         ),
         .testTarget(
             name: "BaseUITests",
-            dependencies: ["BaseUI"],
-            path: "BaseUI/Tests/BaseUITests"
+            dependencies: ["BaseUI"]
         ),
     ]
 )
